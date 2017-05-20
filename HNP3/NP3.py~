@@ -1,0 +1,61 @@
+__author__ = 'soheil'
+
+from TopicModel.particle import Particle
+import scipy as sc
+import numpy as np
+
+
+class NP3:
+
+    def __init__(self, a, b, c, d, beta, gamma, number_of_user=1000, n=1000):
+        self.particles = [Particle(a,b,c,d,beta,gamma) for i in range(n)]
+        self.a = a
+        self.b = b
+        self.c = c
+        self.d = d
+        self.beta = beta
+        self.gamma = gamma
+        self.number_of_doc = 0
+        self.thresh = 10
+        self.number_of_user = number_of_user
+
+    def add_event(self, time, user, document):
+        for particle in self.particles:
+            particle.update(time, user, document)
+        self.resample_particles()
+
+    def resample_particles(self):
+        weights = list()
+        for particle in self.particles:
+            weights.append(particle.particle_weight)
+        weights = np.array(weights)
+        weights = weights / np.sum(weights)
+        if np.sum(weights ** 2) > (len(self.particles) / self.thresh):
+            cs = np.cumsum(weights)
+            idx = cs.searchsorted(np.random.rand(len(weights)) * cs[-1], 'right')
+            tmp = self.particles
+            for i in range(len(self.particles)):
+                self.particles[i] = tmp[idx[i]]
+
+    def alpha_expectation(self,time):
+        alpha = np.ndarray((self.number_of_user, self.number_of_user))
+        for j in range(self.number_of_user):
+            print(j)
+            for i in range(self.number_of_user):
+                alpha[i][j] = 0
+                weight_sum = 0
+                for particle in self.particles:
+                    x = particle.user_event_count[i][2] + (-self.beta * (time - particle.user_event_count[i][1]))
+                    x = np.exp(x)
+                    alpha[i][j] += particle.particle_weight * (self.c + particle.counts[i][j]) /\
+                                   (self.d + self.beta*(particle.user_event_count[i][0]-x))
+                    weight_sum += particle.particle_weight
+                alpha[i][j] /= weight_sum
+        return alpha
+
+    # def phi_posterior(self):
+        
+
+
+
+

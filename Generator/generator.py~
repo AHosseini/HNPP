@@ -1,0 +1,289 @@
+import scipy.stats as sst
+import numpy as np
+import math as mth
+import matplotlib as mpl
+mpl.use("qt4agg")
+import matplotlib.pyplot as plt
+
+# returns a array proportional to input that sum of it's elements is one
+def normalize_sum(v):
+    norm = np.sum(v)
+    if norm == 0:
+        return v
+    return v / norm
+
+
+# returns [min_index, min_value]
+def minimum(ls):
+    res = [-1, float('inf')]
+    for i in range(0, len(ls)):
+        if ls[i] < res[1]:
+            res[1] = ls[i]
+            res[0] = i
+    return res
+
+
+# Hyperparameters
+# n = int(input())
+# a = float(input())
+# b = float(input())
+# c = float(input())
+# d = float(input())
+# vocab_size = int(input())
+# topic_size = int(input())
+# gam = float(input())  #1
+# beta = float (input())  #0.1
+# t_max = float(input())  #10
+
+n = 2000
+a = 1
+b = 100
+c = 1
+d = 100
+vocab_size = 1000
+topic_size = 10000
+gam = 200  #1
+beta = 0.5  #0.1
+t_max = 100  #10
+name = input("Enter Test Name: ")
+if_draw_plot = input("Do you want to draw plots?(True if want, False if do not want) ") == "True"
+
+# topics
+H_param = sst.uniform.rvs(0, 1, vocab_size) + 1
+phi = sst.dirichlet.rvs(H_param, topic_size)
+
+
+# alpha & mu
+alpha = np.zeros((n, n))
+number_of_adj = int(n / 10)
+for i in range(0, n):
+    inds = np.random.choice(n, number_of_adj, replace=False)
+    for j in range(0, number_of_adj):
+        alpha[i][inds[j]] = sst.gamma.rvs(c, 0, 1 / d, 1)
+mu = sst.gamma.rvs(a, 0, 1 / b, n)
+
+
+# plotting mu and alpha
+if if_draw_plot:
+    histArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    mean2 = (c / d) * 2
+    for i in range(int(n)):
+        for j in range(int(n)):
+            if alpha[i][j] != 0:
+                alpha_r = alpha[i][j] / mean2
+                if alpha_r > 1:
+                    histArr[10] += 100 / (n**2)
+                else:
+                    histArr[int(alpha_r * 10)] += 100 / (n**2)
+    alpha_plt = plt.bar([i for i in range(11)], histArr)
+    plt.legend([alpha_plt], ["Alphas"])
+    plt.show()
+    histArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    mean2 = (a / b) * 2
+    for i in range(n):
+        mu_r = mu[i] / mean2
+        if mu_r > 1:
+            histArr[10] += 100 / n
+        else:
+            histArr[int(mu_r * 10)] += 100 / n
+    mu_plt = plt.bar([i for i in range(11)], histArr)
+    plt.legend([mu_plt], ["mu s"])
+    plt.show()
+
+# Saving alphas and mus
+np.savetxt('../../data/' + name + '_alpha.txt', alpha, delimiter=',')
+np.savetxt('../../data/' + name + '_mu.txt', mu, delimiter=',')
+
+# Hawkes process
+events = []
+lambdas = [mu]  # intensities
+ts = [0]  # t_k s
+T = 0
+max_K = 1000000
+num = 1
+xs = [0]
+ys = [T]
+xs2 = [0]
+ys2 = [0]
+timeline_spar = 5
+timeline_spar_counter = 0
+while T <= t_max and num <= max_K:
+    flag = False
+    min_t = float('inf')
+    min_f = float('inf')
+    min_t_ind = -1
+    min_f_ind = -1
+    i = len(lambdas)
+    for j in range(0, n):
+        u_1 = sst.uniform.rvs(0, 1, 1)
+        u_2 = sst.uniform.rvs(0, 1, 1)
+        s = (-1/lambdas[i - 1][j]) * mth.log(u_1)
+
+        lambda_s = (lambdas[i - 1][j] - mu[j]) * mth.exp(-beta * s) + mu[j]
+        if u_2 > lambda_s / lambdas[i - 1][j]:
+            if min_f > s:
+                min_f = s
+                min_f_ind = j
+        else:
+            if min_t > s:
+                min_t = s
+                min_t_ind = j
+            flag = True
+    adder = 0
+    if flag:
+        [ind, sk] = [min_t_ind, min_t]
+        ts.append(ts[len(ts) - 1] + sk)
+        events.append([ts[len(ts) - 1], ind, []])
+        if timeline_spar_counter % timeline_spar == 0:
+            xs2.append(ts[len(ts) - 1])
+            ys2.append(10)
+        timeline_spar_counter = (timeline_spar_counter + 1) % timeline_spar
+        xs.append((len(ts) - 1))
+        ys.append(ts[len(ts) - 1])
+        adder = 1
+        num += 1
+    else:
+        [ind, sk] = [min_f_ind, min_f]
+        adder = 0
+    T += sk
+    newlambdas = []
+    for j in range(0, n):
+        newlambdas.append((lambdas[i - 1][j] - mu[j]) * mth.exp(-beta * sk) + mu[j] + alpha[ind][j] * adder)
+    lambdas.append(newlambdas)
+
+K = len(events)
+
+if if_draw_plot:
+    times_plt = plt.scatter(xs2, ys2, s=1)
+    plt.axis([0, t_max, 0, 20])
+    plt.legend([times_plt], "Times")
+    plt.show()
+
+# Triggering events
+trigger = []
+endogenous = []
+ys = [0]
+xs = [0]
+xs2 = [0]
+ys2 = [0]
+xs3 = [0]
+ys3 = [0]
+cum = 0
+for i in range(0, K):
+    u = events[i][1]
+    t = events[i][0]
+    sums = mu[u]
+    for k in range(0, i):
+        sums += alpha[events[k][1]][u] * mth.exp(-beta * (t - events[k][0]))
+    u_1 = sst.uniform.rvs(0, sums, 1)
+    sums = 0
+    flag = 0
+    for k in range(0, i):
+        sums += alpha[events[k][1]][u] * mth.exp(-beta * (t - events[k][0]))
+        if u_1[0] <= sums:
+            flag = 1
+            trigger.append(k)
+            ys.append(events[k][0])
+            xs.append(len(xs))
+            xs3.append(len(xs3))
+            ys3.append(cum / 10)
+            break
+    if flag == 0:
+        cum += 1
+        trigger.append(i)
+        ys.append(events[i][0])
+        xs.append(len(xs))
+        ys2.append(events[i][0])
+        xs2.append(len(xs) - 1)
+        xs3.append(len(xs3))
+        ys3.append(cum / 10)
+        endogenous.append(i)
+if if_draw_plot:
+    times_by_index_plt, = plt.plot(xs, ys)
+    endeg_plt = plt.scatter(xs2, ys2)
+    plt.plot(xs2, ys2)
+    endeg_cum_plt, = plt.plot(xs3, ys3)
+    plt.legend([times_by_index_plt, endeg_plt, endeg_cum_plt], ["Times of triggerers", "Endegeneous Events", "Cumulicative sum of number of endegeneous events"])
+    plt.axis([0, K - 1, 0, t_max])
+    plt.show()
+ys = []
+xs = []
+xs2 = [0]
+ys2 = [0]
+xs3 = [0]
+ys3 = [0]
+# Topic indexes
+z = np.zeros(K)
+last_index = -1
+prev_edeg_nums = 0
+for i in range(0, K):
+    xs.append(i + 1)
+    if trigger[i] != i:
+        z[i] = z[trigger[i]]
+    else:
+        m_0 = 0
+        t = events[i][0]
+
+        for k in range(0, len(endogenous)):
+            a = events[endogenous[k]][0]
+            if a > t:
+                prev_edeg_nums = k - 1
+                break
+            m_0 += mth.exp(-(t - a))
+        u_1 = sst.uniform.rvs(0, m_0 + gam, 1)
+        m_0 = 0
+        flag = 0
+        for k in range(0, prev_edeg_nums + 1):
+            m_0 += mth.exp(-(t - events[endogenous[k]][0]))
+            if u_1[0] <= m_0:
+                flag = 1
+                z[i] = z[k]
+                break
+        if flag == 0:
+            z[i] = last_index + 1
+            last_index += 1
+    ys.append(z[i])
+if if_draw_plot:
+    histArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    plt_max = last_index + 1
+    for i in range(K):
+        zi_r = ys[i] / plt_max
+        if mu_r > 1:
+            histArr[10] += 100 / K
+        else:
+            histArr[int(zi_r * 10)] += 100 / K
+    topics_plt = plt.bar([i for i in range(11)], histArr)
+    plt.legend([topics_plt], ["Topics"])
+    plt.show()
+# Document Generation
+D = 20  # Document Size\
+for i in range(0, K):
+    events[i][2] = np.random.multinomial(D, phi[z[i]], 1)
+
+s = ""
+words_count = [0 for i in range(vocab_size)]
+for i in range(len(events)):
+    s += str(int(events[i][0] * 1000)) + "," + str(events[i][1]) + ","
+    arr = dict()
+    k = 0
+    summ = 0
+    ss = ""
+    while k <= len(events[i][2][0]) - 1:
+        words_count[k] += events[i][2][0][k]
+        if events[i][2][0][k] > 0:
+            ss += ","
+            ss += (str(k) + ":" + str(events[i][2][0][k]))
+            summ += 1
+        k += 1
+    events[i][2] = arr
+    ss += "\n"
+    s += str(summ) + ss
+s2 = ""
+for i in range(vocab_size - 1):
+    s2 += str(words_count[i]) + ","
+s2 += str(words_count[vocab_size - 1])
+with open('../../data/' + name + '_events.txt', 'w') as efile:
+    efile.write(s)
+with open('../../data/' + name + '_wordsCount.txt', 'w') as efile:
+    efile.write(s2)
+# finished
