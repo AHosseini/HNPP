@@ -1,8 +1,8 @@
-# Hierarchical Nonparametric Point Process (HNP3)
+# Hierarchical Dirichlet Point Process (HDPP)
 ![Build Status](https://img.shields.io/teamcity/codebetter/bt428.svg)
 ![License](https://img.shields.io/badge/license-BSD-blue.svg)
 
-HNP3 is a python library for modeling content diffusion over social media. This library aims to infer the interests of users by jointly modeling the time and content of messages of users over social media. In order to do so, this library use a nonparametric topic model and a nonparametric point process to jointly model the time and content of messages over social media and uses an efficient online inference algorithm based on sequential monte carlo to infer the latent variables.
+HDPP is a hierarchical nonparametric point process which is appropriate for modeling marked events. HDPP is mainly applicable in scenarios where the number of marks is not finite. This is a python implementation of HDPP for modeling content diffusion over social media. This library aims to infer the interests of users by jointly modeling the time and content of messages of users over social media. In order to do so, this library use a nonparametric topic model and a nonparametric point process to jointly model the time and content of messages over social media and uses an efficient online inference algorithm based on sequential monte carlo to infer the latent variables.
 
 ## Prerequisites
 
