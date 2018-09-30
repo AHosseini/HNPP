@@ -14,11 +14,11 @@ Hierarchical NonParmetric Point Processes (HNP3) is unified statistical framewor
 
 -  A coherent generative model for content over social media
 
-- The model manages its complexity by adapting the size of the latent space and the number of classifiers over time.
+-  A novel generative model for learning user preferences and recommendation
 
-- Handling concept drift by adapting data-concept association without unnecessary i.i.d. assumption among data of a batch
+- The models manage their complexity by adapting the size of the latent space over time.
 
-- An online algorithm for inference on the non-conjugate non-parametric time-dependent models.
+- An online algorithm for inference on HDPP and a scalable variational inference algorithm for FGPP.
 
 ## Data
 
