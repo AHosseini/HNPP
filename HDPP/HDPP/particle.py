@@ -437,10 +437,10 @@ class Particle(object):
             omega = 0
             for v in range(self.user_num):
                 omega += np.sum(alpha[v, :]) * omega_u.get(v, 0)
-                # print('HNP3-->v:{0},np.sum(alpha[v, :]):{1},omega_u[v]={2},omega={3}'.format(v, np.sum(alpha[v, :]),
+                # print('HDPP-->v:{0},np.sum(alpha[v, :]):{1},omega_u[v]={2},omega={3}'.format(v, np.sum(alpha[v, :]),
                 #                                                                    omega_u[v],omega))
             beta = self.kernel_mean
-            print('HNP3-->omega1:{0}'.format(omega))
+            print('HDPP-->omega1:{0}'.format(omega))
             for i in range(idx):
                 e = events[i]
                 v = e['user']
@@ -450,7 +450,7 @@ class Particle(object):
                     np.exp(-1 * beta * (last_t - t_e)) - np.exp(-1 * beta * (t - t_e)))
                 # else:
                 #     omega += np.sum(alpha[v, :]) * 1 / beta
-            print('HNP3-->omega2:{0}'.format(omega))
+            print('HDPP-->omega2:{0}'.format(omega))
             lambda_u = 0
             lambda_u += mu[u]
             print('mu[u]={0}'.format(mu[u]))
@@ -490,10 +490,10 @@ class Particle(object):
                     lambda_u += alpha[u_s][u] * exp(-1 * beta * (t - t_s))
             log_likelihood[idx] = -1 * ((t - last_t) * np.sum(mu) + omega) + np.log(lambda_u)
             print('lambda3={0}'.format(lambda_u))
-            print('HNP3:(t - last_t):{0}, np.sum(mu):{1},omega:{2},log(lambda):{3}'.format((t - last_t), np.sum(mu),
+            print('HDPP:(t - last_t):{0}, np.sum(mu):{1},omega:{2},log(lambda):{3}'.format((t - last_t), np.sum(mu),
                                                                                            omega, np.log(lambda_u)))
             last_t = t
-            print('HNP3:event {0} processed. log_likelihood={1}'.format(idx, log_likelihood[idx]))
+            print('HDPP:event {0} processed. log_likelihood={1}'.format(idx, log_likelihood[idx]))
         return log_likelihood
 
     def add_analyzed_events(self, analyzed_events, topics,
@@ -602,8 +602,8 @@ class Particle(object):
         save_data["omega_u"] = self.omega_u
         save_data["old_events_omega_u"] = self.old_events_omega_u
 
-        # f = open('../results/' + self.name + '/HNP3/particle' + str(idx) + '_' + str(counter) + '.pk', 'wb')
-        f = open('../results/' + self.name + '/HNP3/' + prefix + 'particle' + str(idx) + '_' + str(
+        # f = open('../results/' + self.name + '/HDPP/particle' + str(idx) + '_' + str(counter) + '.pk', 'wb')
+        f = open('../results/' + self.name + '/HDPP/' + prefix + 'particle' + str(idx) + '_' + str(
             self.current_event_num) + '.pk', 'wb')
         pickle.dump(save_data, f)
         f.close()

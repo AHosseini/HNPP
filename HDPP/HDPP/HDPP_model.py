@@ -1,5 +1,5 @@
 import pickle
-from HNP3.particle import Particle
+from HDPP.particle import Particle
 import numpy as np
 from copy import deepcopy
 from numpy import random as random
@@ -196,10 +196,10 @@ class NP3:
         #########################################################################
 
     def save(self):
-        f = open('../results/' + self.name + '/HNP3/estimated_alpha_' + str(self.number_of_doc) + '.pk', 'wb')
+        f = open('../results/' + self.name + '/HDPP/estimated_alpha_' + str(self.number_of_doc) + '.pk', 'wb')
         pickle.dump(self.expected_alpha, f)
         f.close()
-        f = open('../results/' + self.name + '/HNP3/estimated_mu_' + str(self.number_of_doc) + '.pk', 'wb')
+        f = open('../results/' + self.name + '/HDPP/estimated_mu_' + str(self.number_of_doc) + '.pk', 'wb')
         pickle.dump(self.expected_mu, f)
         f.close()
         for idx, particle in enumerate(self.particles):
@@ -223,10 +223,10 @@ class NP3:
 
     def load(self, number_of_events):
         self.number_of_doc = number_of_events
-        f = open('../results/' + self.name + '/HNP3/estimated_alpha_' + str(self.number_of_doc) + '.pk', 'rb')
+        f = open('../results/' + self.name + '/HDPP/estimated_alpha_' + str(self.number_of_doc) + '.pk', 'rb')
         self.expected_alpha = pickle.load(f)
         f.close()
-        f = open('../results/' + self.name + '/HNP3/estimated_mu_' + str(self.number_of_doc) + '.pk', 'rb')
+        f = open('../results/' + self.name + '/HDPP/estimated_mu_' + str(self.number_of_doc) + '.pk', 'rb')
         self.expected_mu = pickle.load(f)
         f.close()
         self.particles = [
@@ -241,7 +241,7 @@ class NP3:
             for i in range(self.number_of_particles)]
         for p in range(len(self.particles)):
             print("going to load particle {0}".format(p))
-            f = open('../results/' + self.name + '/HNP3/particle' + str(p) + '_' + str(number_of_events) + '.pk',
+            f = open('../results/' + self.name + '/HDPP/particle' + str(p) + '_' + str(number_of_events) + '.pk',
                      'rb')
             loaded_particle = pickle.load(f)
             f.close()

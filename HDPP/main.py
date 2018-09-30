@@ -1,5 +1,5 @@
 from __future__ import division
-from HNP3.HNP3_model import NP3
+from HDPP.HDPP_model import NP3
 from DirichletHawkes.DH_model import DirichletHawkes
 from Hawkes.hawkes_model import HawkesModel
 from common.input_reader import InputReader
@@ -9,13 +9,13 @@ import sys
 
 if len(sys.argv) < 3:
     print('Wrong Arguments.\n Correct format is: python main.py MethodName DatasetName')
-    print('MethodName can be:\n HNP3\n DirichletHawkes\n Hawkes')
+    print('MethodName can be:\n HDPP\n DirichletHawkes\n Hawkes')
     print('DatasetName can be:\n EventRegistry\n Synthetic')
     exit(1)
 methodName = sys.argv[1]
 dataset_name = sys.argv[2]
-if methodName != 'HNP3' and methodName != 'DirichletHawkes' and methodName != 'Hawkes':
-    print('Wrong Arguments. MethodName can be:\n HNP3 or DirichletHawkes or Hawkes')
+if methodName != 'HDPP' and methodName != 'DirichletHawkes' and methodName != 'Hawkes':
+    print('Wrong Arguments. MethodName can be:\n HDPP or DirichletHawkes or Hawkes')
     exit(1)
 if dataset_name != 'EventRegistry'and methodName != 'Synthetic':
     print('Wrong Arguments. DatasetName can be:\n EventRegistry or Synthetic')
@@ -24,7 +24,7 @@ print('Going to run ' + methodName + " on " + dataset_name + " dataset.")
 
 # ****************************** Setting Hyperparameters ******************************
 hyper_params = dict()
-if methodName == 'HNP3':
+if methodName == 'HDPP':
     hyper_params['a'] = 0.00016
     hyper_params['b'] = 16
     hyper_params['c'] = 0.16
@@ -53,7 +53,7 @@ else:
     hyper_params['kernel_var'] = 0.001
     hyper_params['epsilon'] = 16e-8
 
-if methodName == 'HNP3' or methodName == 'DirichletHawkes':
+if methodName == 'HDPP' or methodName == 'DirichletHawkes':
     with open('../data/' + dataset_name + '/wordcount.pickle', 'rb') as default_eta_file:
         default_eta_dict = pickle.load(default_eta_file)
         default_eta = np.zeros(len(default_eta_dict))

@@ -4,7 +4,7 @@ import math as mth
 import matplotlib as mpl
 import sys
 
-# from HNP3.topic_model import TopicModel
+# from HDPP.topic_model import TopicModel
 
 # mpl.use("qt4agg")
 import matplotlib.pyplot as plt

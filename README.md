@@ -2,11 +2,13 @@
 ![Build Status](https://img.shields.io/teamcity/codebetter/bt428.svg)
 ![License](https://img.shields.io/badge/license-BSD-blue.svg)
 
-HNP3 is a python library for modeling content diffusion over social media. This library aims to infer the interests of users by jointly modeling the time and content of messages of users over social media. In order to do so, this library use a nonparametric topic model and a nonparametric point process to jointly model the time and content of messages over social media and uses an efficient online inference algorithm based on sequential monte carlo to infer the latent variables.
+Hierarchical NonParmetric Point Processes (HNP3) is unified statistical framework for modeling temporal marked events and predicting future events using the history of events. HNP3 is able to model and infer the growing number of patterns underly the events by sharing the patterns among users using a hierarchical structure. In this library we implemented two variants of HNP3, i.e. Hierarchical Dirichlet Point Process (HDPP) and Factorized Gamma Point Processes (FGPP). HDPP models the time of events using a multi-dimensional point process and mark of events by a Dirichlet Process and shares the patterns among users by a common base measure. FGPP  is another variant of HNP3 which infers the latent patterns underly events and shares such patterns among users using a size-biased ordering. In this library, we implemented an online inference algorithm based on sequential Monte Carlo for HDPP which is implemented in Python and a scalable variational inference algorithm for FGPP which is implemented in Matlab.
 
 ## Prerequisites
 
 - Python version 3.x
+
+- Matlab version R2014 or later
 
 ## Features
 
@@ -20,8 +22,8 @@ HNP3 is a python library for modeling content diffusion over social media. This 
 
 ## Data
 
-The EventRegistry dataset which is used in the HNP3 paper is in the data folder as a sample.
-The dataset contians the following files:
+The EventRegistry dataset which is used for evaluating the HDPP model is in the data folder as a sample.
+For HDPP model, the dataset should contain the following files:
 
 events.csv: The events sorted in an increasing order of time in the following format:
 
@@ -40,14 +42,27 @@ contains the adjacency matrix.
 
 ## Running The Code
 
+In order to run HDPP model:
+
 - Run the install script using python by ```python setup.py build_ext --inplace```
 
 - Set the Dataset in the "Main" Script
 
 - Run the Main script by ```python main.py MethodName DatasetName```
 
- where MethodName can be "HNP3" or "DirichletHawkes" or "Hawkes" and DatasetName can be "EventRegistry" or any other 
- dataset which is located in "data" folder. The results will be saved under the results folder
+ where MethodName can be "HDPP" or "DirichletHawkes" or "Hawkes" and DatasetName can be "EventRegistry" or any other 
+ dataset which is located in "data" folder. The results will be saved under the results folder.
+ 
+ In order to run FGPP method:
+
+Go to the methods folder
+
+Set the Dataset in the "RunFGPP" Script
+
+Run the run script
+
+The results will be saved under the "Results" folder.
+ 
 
 ## Citation 
 
