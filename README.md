@@ -72,9 +72,3 @@ Run the run script
 
 The results will be saved under the "Results" folder.
  
-
-## Citation 
-
-In case of using the code, please cite the following paper:
-
-Hosseini, S.A., Khodadadi, A., Arabzadeh, A. and Rabiee H.R., 2016, December. HNP3: A Hierarchical Nonparametric Point Process for Modeling Content Diffusion over Social Media. In 2016 IEEE International Conference on Data Mining (ICDM). IEEE.
